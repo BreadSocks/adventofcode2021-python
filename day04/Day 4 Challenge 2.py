@@ -1,47 +1,65 @@
-from collections import Counter
-
 file = "input.txt"
 
-horizontal = 0
-depth = 0
-lines = [list(line) for line in open(file).read().splitlines()]
-switched = list(zip(*lines))
-print(lines)
-print(switched)
-most_common = []
-least_common = []
-# for line in switched:
-#     results = Counter(line).most_common(2)
-#     most_common += results[0][0]
-#     least_common += results[1][0]
+lines = open(file).read().splitlines()
 
-oxygen_generator_values = lines.copy()
-line_index = 0
-while len(oxygen_generator_values) > 1:
-    flipped = list(zip(*oxygen_generator_values))
-    results = Counter(flipped[line_index]).most_common(2)
-    if results[0][1] == results[1][1]:
-        most_common = '1'  #oxygen
-    else:
-        most_common = results[0][0]
-    oxygen_generator_values = [x for x in oxygen_generator_values if x[line_index] == most_common]
-    line_index += 1
+draw_numbers = [int(x) for x in lines[0].split(",")]
 
-co2_scrubber_values = lines.copy()
-line_index = 0
-while len(co2_scrubber_values) > 1:
-    flipped = list(zip(*co2_scrubber_values))
-    results = Counter(flipped[line_index]).most_common()
-    if results[-1][1] == results[-2][1]:
-        most_common = '0'  #co2
-    else:
-        most_common = results[-1][0]
-    co2_scrubber_values = [x for x in co2_scrubber_values if x[line_index] == most_common]
-    line_index += 1
+boards = []
+board = dict()
+column = 0
+for line in lines[2:]:
+    if line == '':
+        boards.append(board)
+        column = 0
+        board = dict()
+        continue
 
-oxygen_generator_rating = int(''.join(map(str, oxygen_generator_values[0])), 2)
-co2_scrubber_rating = int(''.join(map(str, co2_scrubber_values[0])), 2)
+    for index, number in enumerate([int(x) for x in line.split()]):
+        board[index, column] = number
+    column += 1
+boards.append(board)  # final board
+print(boards)
 
-print(oxygen_generator_rating)
-print(co2_scrubber_rating)
-print(oxygen_generator_rating * co2_scrubber_rating)
+results = []
+for board in boards:
+    results.append([])
+
+finished_games = dict()
+
+for number in draw_numbers:
+    # first find out if the number exists in each board, and mark the location for each
+    for index, board in enumerate(boards):
+        if number in board.values():
+            key_index = list(board.values()).index(number)
+            key = list(board.keys())[key_index]
+            results[index].append(key)
+
+    # then loop through a 5x5 grid and see if a column or row can be found against the locations found above
+    for index, result in enumerate(results):
+        if index in finished_games.keys():
+            continue
+        list1 = [0, 1, 2, 3, 4]
+        for num in range(5):
+            list2 = [num] * 5
+            row = list(zip(list1, list2))
+            column = list(zip(list2, list1))
+            if all(x in result for x in row):
+                print("found on board " + str(index + 1) + " row " + str(num + 1))
+                total = 0
+                for key, value in boards[index].items():
+                    if key not in result:
+                        total += value
+                print(total)
+                print(total * number)
+                finished_games[index] = "{} {} {}".format(total, number, total * number)
+                break
+            elif all(x in result for x in column):
+                print("found on board " + str(index + 1) + " column " + str(num + 1))
+                total = 0
+                for key, value in boards[index].items():
+                    if key not in result:
+                        total += value
+                print(total)
+                print(total * number)
+                finished_games[index] = "{} {} {}".format(total, number, total * number)
+                break
