@@ -41,11 +41,11 @@ for number in draw_numbers:
             column = list(zip(list2, list1))
             if all(x in result for x in row):
                 print("found on board " + str(index + 1) + " row " + str(num + 1))
-                print(board)
+                print(boards[index])
                 print(result)
                 print(number)
                 total = 0
-                for key, value in board.items():
+                for key, value in boards[index].items():
                     if key not in result:
                         total += value
                 print(total)
@@ -54,11 +54,11 @@ for number in draw_numbers:
                 break
             elif all(x in result for x in column):
                 print("found on board " + str(index + 1) + " column " + str(num + 1))
-                print(board)
+                print(boards[index])
                 print(result)
                 print(number)
                 total = 0
-                for key, value in board.items():
+                for key, value in boards[index].items():
                     if key not in result:
                         total += value
                 print(total)
